@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
+    <script type="text/javascript">
+        $(document).ready(
+            () => {
+
+                var ulEmployees = $('#ulEmployees');
+                $('#btn').click(
+                    () => {
+                        var username = $('#txtUsername').val();
+                        var password = $('#txtPassword').val(); 
+
+
+                        $.ajax(
+                            {
+                                type: 'GET',
+                                url: 'api/Employees',
+                                dataType: 'json',
+                                headers: {
+                                    'Authorization': 'Basic ' + btoa(username + ':' + password)
+                                },
+                                success: (data) => {
+                                    ulEmployees.empty();
+                                    $.each(data,
+                                        (index,val) => {
+                                            var fullName = val.FirstName + ' ' + val.LastName;
+                                            ulEmployees.append('<li class="list-group-item">' + fullName + ' ( ' + val.Gender + ')'+ '</li>');
+                                        })
+                                    
+                                },
+                                complete: (jqHXR) => {
+                                    if (jqHXR.status == '401') {
+                                        ulEmployees.empty();
+                                        ulEmployees.append('<li class="list-group-item" style="color:red">' + jqHXR.status + ':' + jqHXR.statusText + '</li>');
+                                    }
+                                }
+                            });
+
+                    });
+                $('#btnClear').click(
+                    () => {
+                        ulEmployees.empty();
+                    }
+                )
+
+            });
+    </script>
+</head>
+<body>
+    <div class="row">
+        <div class="col-sm-6"> Username : <input type="text" id="txtUsername" /></div>
+        <div class="col-sm-6" style="text-align:initial">
+            Password : <input type="password" id="txtPassword" />
+            </div>
+        </div>
+        <br /><br />
+        <input id="btn" class="btn btn-primary" type="button" value="Authenticate and Get Employees" />
+        <input id="btnClear" class="btn btn-primary" type="button" value="Clear" />
+        <ul class="list-group" id="ulEmployees"></ul>
+</body>
+</html>
